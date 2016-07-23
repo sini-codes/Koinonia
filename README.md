@@ -5,7 +5,7 @@ Unity-Oriented Package Manager
 
 ## What is Koinonia? 
 
-Following the [original meaning](https://en.wikipedia.org/wiki/Koinonia), Koinonia is a package manager designed to work tightly with Unity GameEngine. 
+Following the [original meaning](https://en.wikipedia.org/wiki/Koinonia), Koinonia is a package manager designed to work tightly with Unity Engine. 
 
 ## Features
 
