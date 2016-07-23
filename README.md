@@ -56,9 +56,9 @@ Use the following JSON template to craft a configuration for your package and pl
   "License" : "Some License (ex. MIT)",
   "RequiresFullReimport" : true,  
   "Mappings" : {
-    "Default" : "CSharp60SupportAssets", [ 
-    "Root" : "CSharp60Support"
-  } [If not provided, your repo will be installed into `Plugins/ManagedPackages/author/repository/`
+    "Default" : "A/B/C",
+    "Root" : "A/B/C"
+  } 
 }
 ```
 
@@ -71,7 +71,7 @@ Use the following JSON template to craft a configuration for your package and pl
 ##### RequiresFullReimport
 [BOOLEAN, OPTIONAL] If set to true, will prompt user to reimport all assets when your package is installed]
 ##### Mappings
-[OBJECT, OPTIONAL, CHILDREN SCHEME: { "MappingId" : "RelativePathInYourRepository" } ]  
+[OBJECT, OPTIONAL, PROPERTY SCHEME: "MappingId" : "RelativePathInYourRepository" ]  
 If not provided, your entire repo will be installed into `Plugins/ManagedPackages/author/repository/`
 ###### Default
 [REQUIRED] Relative path in your repository that will be copied to `Plugins/ManagedPackages/author/repository/`
