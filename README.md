@@ -49,7 +49,7 @@ As an second example, you can install uFrame/MVVM or uFrame/ECS. In terminal typ
 
 ## How to make my repository compatible with Koinonia ?
 #### Package Identification
-Use the following JSON template to craft a configuration for your package:  
+Use the following JSON template to craft a configuration for your package and place it inside `koinonia.config.json` in your repository root:  
 ```
 {
   "Title" : "Package Title",
@@ -63,22 +63,23 @@ Use the following JSON template to craft a configuration for your package:
 }
 ```
 
-###### Title
+##### Title
 [STRING, REQUIRED]
-###### Author
+##### Author
 [STRING, REQUIRED]
-###### License
+##### License
 [STRING, REQUIRED]
-###### RequiresFullReimport
+##### RequiresFullReimport
 [BOOLEAN, OPTIONAL] If set to true, will prompt user to reimport all assets when your package is installed]
-###### Mappings
+##### Mappings
 [OBJECT, OPTIONAL, CHILDREN SCHEME: { "MappingId" : "RelativePathInYourRepository" } ]  
 If not provided, your entire repo will be installed into `Plugins/ManagedPackages/author/repository/`
-####### Default
+###### Default
 [REQUIRED] Relative path in your repository that will be copied to `Plugins/ManagedPackages/author/repository/`
-####### Root
+###### Root
 [OPTIONAL] Relative path in your repository that will be copied to Project root (no nesting is done as `author/repository`
-
+  
+  
 > Regardless of any mappings, koinonia.config.json and optional installer will be copied inside `Plugins/ManagedPackages/author/repository/`  
 
 
