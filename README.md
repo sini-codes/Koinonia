@@ -3,6 +3,11 @@ Unity-Oriented Package Manager
 
 [![Join the chat at https://gitter.im/nitreo/Koinonia](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nitreo/Koinonia?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+## WARNING
+
+Koinonia is in pre-alpha state. Expect bugs, breaking changes, etc.  
+Don't use in production.
+
 ## What is Koinonia? 
 
 Following the [original meaning](https://en.wikipedia.org/wiki/Koinonia), Koinonia is a package manager designed to work tightly with Unity Engine. 
