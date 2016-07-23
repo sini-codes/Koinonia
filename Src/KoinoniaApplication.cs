@@ -243,9 +243,7 @@ namespace Koinonia
 
             if (result.Success)
             {
-                var reimports = Installs.Where(i => i.ConfigData.RequiresFullReimport).ToArray();
-
-
+                var reimports = Installs.Where(i => i.ConfigData.RequiresFullReimport && !i.InstallFinalized).ToArray();
 
                 if (reimports.Any())
                 {
@@ -280,9 +278,32 @@ namespace Koinonia
         
         public void UninstallNode(Install selectedPackage)
         {
-           // FileUtils.DeleteFolder(new DirectoryInfo(selectedPackage.Path));
-            this.Commit();
-            AssetDatabase.Refresh();
+            var installation = new Uninstallation(this, this, GithubApiRequestManager, Logger);
+            var result = installation.Uninstall(selectedPackage);
+
+            if (selectedPackage.ConfigData.RequiresFullReimport)
+            {
+
+                var msg = "Deinstalled package requires full reimport "+selectedPackage.ToShortString();
+
+                ThreadingUtils.DispatchOnMainThread(() =>
+                {
+                    if (EditorUtility.DisplayDialog("Koinonia", msg, "Ok", "No, I'll do it myself"))
+                    {
+                        EditorApplication.ExecuteMenuItem("Assets/Reimport All");
+                    }
+                    else
+                    {
+                        AssetDatabase.Refresh();
+                    }
+                });
+
+            }
+            else
+            {
+                ThreadingUtils.DispatchOnMainThread(AssetDatabase.Refresh);
+
+            }
         }
 
         public static bool LogginEnabled = true;

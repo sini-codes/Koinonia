@@ -240,7 +240,15 @@ namespace Koinonia
         [CLIAlias("u")]
         public void Uninstall(string[] args)
         {
-            throw new NotImplementedException("Uninstall is not yet implemented");
+            var installScheme = GithubSchemeDecoder.DecodeShort(args[1]);
+            var install = KoinoniaApplication.Instance.FetchInstallsRegistry().Installs.FirstOrDefault(_ => _.RepositoryName == installScheme.Name && _.AuthorName == installScheme.Owner);
+
+            if (install != null)
+            {
+                KoinoniaApplication.Instance.UninstallNode(install);
+            }
+
+
         }
 
 
