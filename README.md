@@ -3,7 +3,7 @@ Unity-Oriented Package Manager
 
 [![Join the chat at https://gitter.im/nitreo/Koinonia](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nitreo/Koinonia?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)  
 
-[!Koinonia Image](https://i.gyazo.com/c5e58d4bb60f25deeb5806aeffb1e993.png)
+!(https://i.gyazo.com/c5e58d4bb60f25deeb5806aeffb1e993.png)
 
 ## WARNING
 
