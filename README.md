@@ -55,13 +55,32 @@ Use the following JSON template to craft a configuration for your package:
   "Title" : "Package Title",
   "Author" : "Package Author",
   "License" : "Some License (ex. MIT)",
-  "RequiresFullReimport" : true,  [OPTIONAL, if set to true, will prompt user to reimport all assets when your package is installed]
-  "Mappings" : { [OPTIONAL, format: "MappingId" : "RelativePathInYourRepository" ]
-    "Default" : "CSharp60SupportAssets", [ relative path in your repository that will be copied to 
+  "RequiresFullReimport" : true,  
+  "Mappings" : {
+    "Default" : "CSharp60SupportAssets", [ 
     "Root" : "CSharp60Support"
   } [If not provided, your repo will be installed into `Plugins/ManagedPackages/author/repository/`
 }
 ```
+
+###### Title
+[STRING, REQUIRED]
+###### Author
+[STRING, REQUIRED]
+###### License
+[STRING, REQUIRED]
+###### RequiresFullReimport
+[BOOLEAN, OPTIONAL] If set to true, will prompt user to reimport all assets when your package is installed]
+###### Mappings
+[OBJECT, OPTIONAL, CHILDREN SCHEME: { "MappingId" : "RelativePathInYourRepository" } ]  
+If not provided, your entire repo will be installed into `Plugins/ManagedPackages/author/repository/`
+####### Default
+[REQUIRED] Relative path in your repository that will be copied to `Plugins/ManagedPackages/author/repository/`
+####### Root
+[OPTIONAL] Relative path in your repository that will be copied to Project root (no nesting is done as `author/repository`
+
+> Regardless of any mappings, koinonia.config.json and optional installer will be copied inside `Plugins/ManagedPackages/author/repository/`  
+
 
 #### Post Installer
 
