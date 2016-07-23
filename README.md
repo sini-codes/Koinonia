@@ -23,15 +23,14 @@ Installing stuff manually from github is great, but can be automated for the sak
 
 Koinonia is designed to be lightweight, useful and easy.
 
-## How to install ? 
+## Quick Getting Started
 
+#### Prerequisites  
+Please, follow [this guide](https://github.com/blog/1509-personal-api-tokens) to create personal access token. You will need it for koinonia to communicate with github.
+
+#### Step 0.
 Download Zip or Clone this repo somewhere into your project Assets folder.  
 > Make sure Koinonia is located under Editor folder
-
-## How to use ?
-
-Prerequisites:  
-Please, follow [this guide](https://github.com/blog/1509-personal-api-tokens) to create personal access token. You will need it for koinonia to communicate with github.
 
 #### Step 1. 
 Once Koinonia is installed, in the top menu locate `Packages -> Manager...`
