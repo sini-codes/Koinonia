@@ -94,7 +94,12 @@ If not provided, your entire repo will be installed into `Plugins/ManagedPackage
 > Regardless of any mappings, koinonia.config.json and optional installer will be copied inside `Plugins/ManagedPackages/author/repository/`  
 
 
-#### Post Installer
+## Repos compatible with Koinonia
 
+* https://github.com/nitreo/UniRx
+* https://github.com/nitreo/csharp60
+* https://github.com/uFrame/Core
+* https://github.com/uFrame/MVVM
+* https://github.com/uFrame/ECS
 
 
