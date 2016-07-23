@@ -32,7 +32,7 @@ namespace Koinonia
         protected override WebRequest GetWebRequest(Uri address)
         {
             WebRequest webRequest = base.GetWebRequest(address);
-            webRequest.Timeout = 1000*10;
+            webRequest.Timeout = 1000*30;
             return webRequest;
         }
     }
