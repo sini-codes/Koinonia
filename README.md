@@ -48,8 +48,22 @@ As a first example, you can install CSharp 6.0 support. In terminal type in `ins
 As an second example, you can install uFrame/MVVM or uFrame/ECS. In terminal type in `install uFrame/MVVM` or `install uFrame/ECS`
 
 ## How to make my repository compatible with Koinonia ?
+#### Package Identification
+Use the following JSON template to craft a configuration for your package:  
+```
+{
+  "Title" : "Package Title",
+  "Author" : "Package Author",
+  "License" : "Some License (ex. MIT)",
+  "RequiresFullReimport" : true,  [OPTIONAL, if set to true, will prompt user to reimport all assets when your package is installed]
+  "Mappings" : { [OPTIONAL, format: "MappingId" : "RelativePathInYourRepository" ]
+    "Default" : "CSharp60SupportAssets", [ relative path in your repository that will be copied to 
+    "Root" : "CSharp60Support"
+  } [If not provided, your repo will be installed into `Plugins/ManagedPackages/author/repository/`
+}
+```
 
-
+#### Post Installer
 
 
 
