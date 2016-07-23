@@ -36,7 +36,7 @@ namespace Koinonia
             get { return _fullMappings ?? (_fullMappings = new Mappings()
             {
                 Default = Path.Combine(PathUtils.RootPath, Mappings.Default),
-                Root = Path.Combine(PathUtils.RootPath, Mappings.Root),  
+                Root = string.IsNullOrEmpty(Mappings.Root) ? null : Path.Combine(PathUtils.RootPath, Mappings.Root),  
 
             }); }
             set { _fullMappings = value; }

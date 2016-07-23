@@ -27,13 +27,23 @@ namespace Koinonia
         }
     }
 
+    public class KoinoniaWebClient : WebClient
+    {
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            WebRequest webRequest = base.GetWebRequest(address);
+            webRequest.Timeout = 1000*10;
+            return webRequest;
+        }
+    }
+
     public static class EditorUtils
     {
 
 
         private static WebClient GetWebClient(string accessToken)
         {
-            var wc = new WebClient();
+            var wc = new KoinoniaWebClient();
 
             if (accessToken != null)
             {
@@ -46,35 +56,18 @@ namespace Koinonia
 
         public static byte[] GetBytes(string url, string accessToken = null)
         {
-            /*
-            byte[] data = null;
-            WWW www = Get(url, accessToken);
-            ThreadingUtils.WaitOnMainThread(() =>
+            using (var wc = GetWebClient(accessToken))
             {
-                data = www.bytes;
-            });
-            */
-
-            var wc = GetWebClient(accessToken);
-
-            return wc.DownloadData(url);
+                return wc.DownloadData(url);
+            }
         }
 
         public static string GetText(string url, string accessToken = null)
         {
-            /*
-            string data = null;
-            WWW www = Get(url, accessToken);
-            ThreadingUtils.WaitOnMainThread(() =>
+            using (var wc = GetWebClient(accessToken))
             {
-                data = www.text;
-            });
-            */
-
-            var wc = GetWebClient(accessToken);
-
-            var downloadString = wc.DownloadString(url);
-            return downloadString;
+                return wc.DownloadString(url);
+            }
         }
 
         public static T GetSerializedObject<T>(string url, string accessToken = null)
@@ -88,9 +81,15 @@ namespace Koinonia
     {
         List<GithubTag> GetTags(string authorName, string repositoryName);
         List<GithubBranch> GetBranches(string authorName, string repositoryName);
+        List<GithubRelease> GetReleases(string authorName, string repositoryName);
         string GetConfigDataString(string authorName, string repositoryName, string commitSha);
         IEnumerable<GithubRepositoriesRegistryEntry> GetGithubRepositoriesRegistry(string url);
         byte[] GetZipball(string authorName, string repositoryName, string id);
+        string GetReleasesUrl(string authorName, string repositoryName);
+        string GetTagsUrl(string authorName, string repositoryName);
+        string GetZipballUrl(string authorName, string repositoryName, string id);
+        string GetBranchesUrl(string authorName, string repositoryName);
+        string GetConfigDataUrl(string authorName, string repositoryName, string sha);
     }
 
     public class GithubTag
@@ -102,6 +101,14 @@ namespace Koinonia
     public class GithubBranch
     {
         public string Name { get; set; }
+        public string CommitSha { get; set; }
+    }
+
+    public class GithubRelease
+    {
+        public string Name { get; set; }
+        public string TagName { get; set; }
+        public DateTime Date { get; set; }
         public string CommitSha { get; set; }
     }
 
@@ -148,6 +155,22 @@ namespace Koinonia
             }).ToList();
         }
 
+        public List<GithubRelease> GetReleases(string authorName, string repositoryName)
+        {
+
+            var jsonString = EditorUtils.GetText(GetReleasesUrl(authorName, repositoryName), AccessToken);
+            var jsonObject = JSON.Parse(jsonString).AsArray;
+
+            return jsonObject.Childs.Select(child => new GithubRelease()
+            {
+                Name = child["name"].AsString,
+                TagName = child["tag_name"].AsString,
+                Date = DateTime.Parse(child["published_at"].AsString),
+            }).ToList();
+        }
+
+
+
         public string GetConfigDataString(string authorName, string repositoryName, string commitSha)
         {
             return EditorUtils.GetText(GetConfigDataUrl(authorName, repositoryName, commitSha)); 
@@ -181,25 +204,30 @@ namespace Koinonia
 
         public byte[] GetZipball(string authorName, string repositoryName, string id)
         {
-            return EditorUtils.GetBytes(GetZipballUrl(authorName, repositoryName, id),AccessToken);
+            return EditorUtils.GetBytes(GetZipballUrl(authorName, repositoryName, id), AccessToken);
         }
 
-        private string GetTagsUrl(string authorName, string repositoryName)
+        public string GetReleasesUrl(string authorName, string repositoryName)
+        {
+            return string.Format("https://api.github.com/repos/{0}/{1}/releases", authorName, repositoryName);
+        }
+
+        public string GetTagsUrl(string authorName, string repositoryName)
         {
             return string.Format("https://api.github.com/repos/{0}/{1}/tags",authorName,repositoryName);
         }
 
-        private string GetZipballUrl(string authorName, string repositoryName, string id)
+        public string GetZipballUrl(string authorName, string repositoryName, string id)
         {
             return string.Format("https://api.github.com/repos/{0}/{1}/zipball/{2}", authorName, repositoryName, id);
         }
 
-        private string GetBranchesUrl(string authorName, string repositoryName)
+        public string GetBranchesUrl(string authorName, string repositoryName)
         {
             return string.Format("https://api.github.com/repos/{0}/{1}/branches",authorName,repositoryName);
         }
 
-        private string GetConfigDataUrl(string authorName, string repositoryName, string sha)
+        public string GetConfigDataUrl(string authorName, string repositoryName, string sha)
         {
             return string.Format("http://github-raw-cors-proxy.herokuapp.com/{0}/{1}/blob/{2}/koinonia.config.json", authorName, repositoryName, sha);
         }

@@ -61,7 +61,7 @@ namespace Koinonia
                     CommitSha = _.CommitSha,
                     Name = _.Name,
                     Type = DownloadableType.Tag
-                });
+                }).ToArray();
 
             var branches = GithubApiManager
                 .GetBranches(host.AuthorName, host.RepositoryName)
@@ -72,8 +72,25 @@ namespace Koinonia
                     CommitSha = _.CommitSha,
                     Name = _.Name,
                     Type =  DownloadableType.Branch
-                });
+                }).ToArray();
 
+            var releases = GithubApiManager
+                .GetReleases(host.AuthorName, host.RepositoryName)
+                .OrderByDescending(_ => _.Date)
+                .Select(_ =>
+                {
+                    var tag = tags.FirstOrDefault(t=>t.Name == _.TagName);
+                    return new Downloadable
+                    {
+                        AuthorName = host.AuthorName,
+                        RepositoryName = host.RepositoryName,
+                        CommitSha = tag.CommitSha,
+                        Name = tag.Name,
+                        Type = DownloadableType.Release
+                    };
+                }).ToArray();
+
+            host.Downloadables.AddRange(releases);
             host.Downloadables.AddRange(tags);
             host.Downloadables.AddRange(branches);
 

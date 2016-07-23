@@ -411,6 +411,7 @@ namespace Koinonia
             //Download 
 
             _logger.Log("Downloading "+entry);
+            _logger.Log("   URL: "+_githubApi.GetZipballUrl(entry.AuthorName, entry.RepositoryName, entry.Name));
             var bytes = _githubApi.GetZipball(entry.AuthorName,entry.RepositoryName,entry.Name);
 
 

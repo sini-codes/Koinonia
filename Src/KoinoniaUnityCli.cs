@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -95,21 +96,34 @@ namespace Koinonia
                 {
                     Process(msg);
                 }
+                catch (TargetInvocationException ex)
+                {
+                    ExceptionProcessor(ex.InnerException);
+                }
                 catch (Exception ex)
                 {
-                    Debug.LogError(ex);
-                    throw;
+                    ExceptionProcessor(ex);
                 }
                 finally
                 {
                     Workers.Remove(thread);
                 }
-                
             });
             Workers.Add(thread);
             thread.Start();
 
             return thread;
+        }
+
+        public void ExceptionProcessor(Exception ex)
+        {
+            if (ex is WebException)
+            {
+                LogProblem("Connection Problem: "+ex.Message);
+            } else 
+            {
+                Debug.LogError(ex);
+            }
         }
 
         public IEnumerable<TerminalServerCommand> Commands
@@ -191,6 +205,30 @@ namespace Koinonia
         public void Finalize(string[] args)
         {
             KoinoniaApplication.Instance.FinalizeInstalls();
+        }
+
+        [CLICommand("list_downloadables","List downloadables for a host")]
+        public void ListDownloadables(string[] args)
+        {
+
+            var shc = GithubSchemeDecoder.DecodeShort(args[1]);
+
+            var host = new DownloadablesHost()
+            {
+                AuthorName = shc.Owner,
+                RepositoryName = shc.Name
+            };
+
+            host.FetchDownloadables();
+
+            foreach (var downloadable in host.Downloadables)
+            {
+                Log(downloadable.ToString());
+            }
+
+
+
+
         }
 
         [CLICommand("test_installer")]

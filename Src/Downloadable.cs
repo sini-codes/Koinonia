@@ -17,7 +17,7 @@
 
     public enum DownloadableType
     {
-        Branch, Tag
+        Branch, Tag, Release
     }
 
     public static class DownloadableExtensions
