@@ -8,6 +8,12 @@ Unity-Oriented Package Manager
 Koinonia is in pre-alpha state. Expect bugs, breaking changes, etc.  
 Don't use in production.
 
+Current goals:
+* Introduce IoC and Decouple stuff
+* "Pluginize" CLI command
+* Implement Update
+* Introduce GUI
+
 ## What is Koinonia? 
 
 Following the [original meaning](https://en.wikipedia.org/wiki/Koinonia), Koinonia is a package manager designed to work tightly with Unity Engine. 
