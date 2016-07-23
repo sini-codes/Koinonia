@@ -63,7 +63,11 @@ Use the following JSON template to craft a configuration for your package and pl
   "Mappings" : {
     "Default" : "A/B/C",
     "Root" : "A/B/C"
-  } 
+  },
+  "Dependencies" : {
+     "repo_owner/repo_name" : "tag_or_branch_name",
+     "nitreo/UniRx" : "master"
+  }
 }
 ```
 
@@ -79,9 +83,12 @@ Use the following JSON template to craft a configuration for your package and pl
 [OBJECT, OPTIONAL, PROPERTY SCHEME: "MappingId" : "RelativePathInYourRepository" ]  
 If not provided, your entire repo will be installed into `Plugins/ManagedPackages/author/repository/`
 ###### Default
-[REQUIRED] Relative path in your repository that will be copied to `Plugins/ManagedPackages/author/repository/`
+[STRING] Relative path in your repository that will be copied to `Plugins/ManagedPackages/author/repository/`
 ###### Root
-[OPTIONAL] Relative path in your repository that will be copied to Project root (no nesting is done as `author/repository`
+[STRING,OPTIONAL] Relative path in your repository that will be copied to Project root (no nesting is done as `author/repository`
+##### Dependencies
+[OBJECT, OPTIONAL, PROPERTY SCHEME: "Repo_Owner/Repo_Name" : "Branch_Or_Tag_Name" ]
+  
   
   
 > Regardless of any mappings, koinonia.config.json and optional installer will be copied inside `Plugins/ManagedPackages/author/repository/`  
