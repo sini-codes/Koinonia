@@ -243,7 +243,38 @@ namespace Koinonia
 
             if (result.Success)
             {
-                ThreadingUtils.DispatchOnMainThread(AssetDatabase.Refresh);
+                var reimports = Installs.Where(i => i.ConfigData.RequiresFullReimport).ToArray();
+
+
+
+                if (reimports.Any())
+                {
+
+                    var msg = "Following packages require full reimport to function properly:\n";
+                    foreach (var reimport in reimports)
+                    {
+                        msg += reimport.ToShortString() + "\n";
+                    }
+
+                    ThreadingUtils.DispatchOnMainThread(() =>
+                    {
+                        if (EditorUtility.DisplayDialog("Koinonia", msg, "Ok", "No, I'll do it myself"))
+                        {
+                            EditorApplication.ExecuteMenuItem("Assets/Reimport All");
+                        }
+                        else
+                        {
+                            AssetDatabase.Refresh();
+                        }
+                    });
+
+                }
+                else
+                {
+                    ThreadingUtils.DispatchOnMainThread(AssetDatabase.Refresh);
+
+                }
+
             }
         }
         

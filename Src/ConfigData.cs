@@ -23,6 +23,9 @@ namespace Koinonia
         public Mappings Mappings { get; set; }
 
         [JsonProperty]
+        public bool RequiresFullReimport { get; set; }
+
+        [JsonProperty]
         public Dictionary<string, string> Dependencies
         {
             get { return _dependencies ?? (_dependencies = new Dictionary<string, string>()); }

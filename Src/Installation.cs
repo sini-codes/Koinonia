@@ -130,7 +130,7 @@ namespace Koinonia
 
             foreach (var entry in PlanInstall.ToArray())
             {
-                Finalize(entry);
+                RegisterInstall(entry);
             }
 
             _installsRegistry.Commit();
@@ -143,7 +143,7 @@ namespace Koinonia
             ReleaseTmp();
         }
 
-        private void Finalize(InstallPlanEntry _)
+        private void RegisterInstall(InstallPlanEntry _)
         {
             _installsRegistry.AddInstall(new Install()
             {
