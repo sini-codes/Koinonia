@@ -23,7 +23,7 @@ Following the [original meaning](https://en.wikipedia.org/wiki/Koinonia), Koinon
 * CLI
 * Install package along with it's dependencies
 * Post Installer Scripts
-* Path mapping to map your repository paths to koinonia installation paths (i.e. Plugins, Project Root, etc)
+* Path mapping to map your repository paths to unity special folders (i.e. Plugins, Project Root, etc)
 
 ## Motivation
 
