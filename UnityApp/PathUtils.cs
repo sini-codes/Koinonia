@@ -14,6 +14,10 @@ namespace Koinonia
         private static string _repositoryCachePath;
         private static string _defaultRelativePackagesPath;
         private static string _installRegistryPath;
+        private static string _testRelativePackagesPath;
+        private static string _testsAbsolutePackagesPath;
+        private static string _docsRelativePackagesPath;
+        private static string _docsAbsolutePackagesPath;
 
         public static string RootPath
         {
@@ -41,10 +45,34 @@ namespace Koinonia
             private set { _defaultPackagesPath = value; }
         }
 
+        public static string TestsAbsolutePackagesPath
+        {
+            get { return _testsAbsolutePackagesPath ?? (_testsAbsolutePackagesPath = Path.Combine(RootPath, TestRelativePackagesPath)); }
+            private set { _testsAbsolutePackagesPath = value; }
+        }
+
+        public static string DocsAbsolutePackagesPath
+        {
+            get { return _docsAbsolutePackagesPath ?? (_docsAbsolutePackagesPath = Path.Combine(RootPath, DefaultRelativePackagesPath)); }
+            private set { _docsAbsolutePackagesPath = value; }
+        }
+
         public static string DefaultRelativePackagesPath
         {
             get { return _defaultRelativePackagesPath ?? (_defaultRelativePackagesPath =  "Assets/Plugins/ManagedPackages"); }
             private set { _defaultRelativePackagesPath = value; }
+        }
+
+        public static string TestRelativePackagesPath
+        {
+            get { return _testRelativePackagesPath ?? (_testRelativePackagesPath =  "Assets/Tests"); }
+            private set { _testRelativePackagesPath = value; }
+        }
+
+        public static string DocsRelativePackagesPath
+        {
+            get { return _docsRelativePackagesPath ?? (_docsRelativePackagesPath =  "Documentation"); }
+            private set { _docsRelativePackagesPath = value; }
         }
 
         public static string PackageConfigurationPath

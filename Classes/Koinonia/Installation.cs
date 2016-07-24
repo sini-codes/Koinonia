@@ -222,50 +222,56 @@ namespace Koinonia
             if (mappings != null)
             {
 
-                _logger.Log("Mappings found...");
+                _logger.Log("Processing mappings...");
 
-                if (!string.IsNullOrEmpty(mappings.Default))
-                {
-                    _logger.Log("Using default mapping: "+mappings.Default);
-                    var rootPath = entry.TmpDir.GetDirectories().First().FullName;
-                    rootPath = Path.Combine(rootPath, mappings.Default);
-                    var rootDir = new DirectoryInfo(rootPath);
-                    var destPath = Path.Combine(PathUtils.DefaultAbsolutePackagesPath, entry.RelativeDestPath);
-                    var destDir = new DirectoryInfo(destPath);
-                    _logger.Log("Copying from " + rootDir.FullName + " to " + destDir.FullName);
-                    FileUtils.CopyFilesRecursively(rootDir, destDir);
-                    entry.FullMappings.Default = Path.Combine(PathUtils.DefaultRelativePackagesPath,entry.RelativeDestPath);
-                }
-
-                if (!string.IsNullOrEmpty(mappings.Root))
-                {
-                    _logger.Log("Using root mapping: "+mappings.Root);
-                    var rootPath = entry.TmpDir.GetDirectories().First().FullName;
-                    rootPath = Path.Combine(rootPath, mappings.Root);
-                    var rootDir = new DirectoryInfo(rootPath);
-                    var uDir = new DirectoryInfo(mappings.Root);
-                    var destPath = Path.Combine(PathUtils.RootPath, uDir.Name);
-                    var destDir = new DirectoryInfo(destPath);
-                    _logger.Log("Copying from " + rootDir.FullName + " to " + destDir.FullName);
-                    FileUtils.CopyFilesRecursively(rootDir, destDir);
-                    entry.FullMappings.Root = uDir.Name;
-                }
+                CommitDefaultMapping(entry);
+                CommitRootMapping(entry);
 
             }
-            else
+            else //Default case, where no mappings are needed
             {
                 var rootPath = entry.TmpDir.GetDirectories().First().FullName;
                 var rootDir = new DirectoryInfo(rootPath);
                 var destPath = Path.Combine(PathUtils.DefaultAbsolutePackagesPath, entry.RelativeDestPath);
                 var destDir = new DirectoryInfo(destPath);
-
                 _logger.Log("Mappings not found. Using standard paths. ");
                 _logger.Log("Copying from " + rootDir.FullName + " to " + destDir.FullName);
                 FileUtils.CopyFilesRecursively(rootDir, destDir);
-
                 entry.FullMappings.Default = Path.Combine(PathUtils.DefaultRelativePackagesPath, entry.RelativeDestPath); 
             }
 
+       
+            CommitMeta(entry);
+
+
+        }
+
+        private void CommitRootMapping(InstallPlanEntry entry)
+        {
+            DirectoryInfo rootDir;
+            DirectoryInfo relDestDir;
+            string destPath;
+            DirectoryInfo destDir;
+            string mapping;
+            mapping = entry.ConfigData.Mappings.Root;
+
+            if (!string.IsNullOrEmpty(mapping))
+            {
+                _logger.Log("Using root mapping: " + mapping);
+                string rootPath;
+                rootPath = Path.Combine(entry.TmpDir.GetDirectories().First().FullName, mapping);
+                rootDir = new DirectoryInfo(rootPath);
+                relDestDir = new DirectoryInfo(mapping); //only needed to fetch directory name
+                destPath = Path.Combine(PathUtils.RootPath, relDestDir.Name);
+                destDir = new DirectoryInfo(destPath);
+                _logger.Log("Copying from " + rootDir.FullName + " to " + destDir.FullName);
+                FileUtils.CopyFilesRecursively(rootDir, destDir);
+                entry.FullMappings.Root = relDestDir.Name;
+            }
+        }
+
+        private void CommitMeta(InstallPlanEntry entry)
+        {
             _logger.Log("Saving config data... ");
 
             var kcPath = Path.Combine(entry.TmpDir.GetDirectories().First().FullName, "koinonia.config.json");
@@ -273,7 +279,7 @@ namespace Koinonia
             var cFilePath = Path.Combine(kcDestPath, "koinonia.config.json");
             if (!File.Exists(cFilePath))
             {
-                entry.FullMappings.Default = Path.Combine(PathUtils.DefaultRelativePackagesPath, entry.RelativeDestPath); 
+                entry.FullMappings.Default = Path.Combine(PathUtils.DefaultRelativePackagesPath, entry.RelativeDestPath);
                 File.Copy(kcPath, cFilePath);
             }
 
@@ -290,10 +296,57 @@ namespace Koinonia
                     File.Copy(kcPath, cFilePath);
                 }
             }
+        }
 
-            
+        private void CommitDocs(InstallPlanEntry entry)
+        {
+            var mapping = entry.ConfigData.Mappings.Docs;
+            if (!string.IsNullOrEmpty(mapping))
+            {
+                _logger.Log("Using documentation mapping: " + mapping);
+                var rootPath = entry.TmpDir.GetDirectories().First().FullName;
+                rootPath = Path.Combine(rootPath, mapping);
+                var rootDir = new DirectoryInfo(rootPath);
+                var destPath = Path.Combine(PathUtils.DocsAbsolutePackagesPath, entry.RelativeDestPath);
+                var destDir = new DirectoryInfo(destPath);
+                _logger.Log("Copying from " + rootDir.FullName + " to " + destDir.FullName);
+                FileUtils.CopyFilesRecursively(rootDir, destDir);
+                entry.FullMappings.Docs = Path.Combine(PathUtils.DocsRelativePackagesPath, entry.RelativeDestPath);
+            }
+        }
 
+        private void CommitTests(InstallPlanEntry entry)
+        {
+            var mapping = entry.ConfigData.Mappings.Tests;
+            if (!string.IsNullOrEmpty(mapping))
+            {
+                _logger.Log("Processing tests mapping: " + mapping);
+                var rootPath = entry.TmpDir.GetDirectories().First().FullName;
+                rootPath = Path.Combine(rootPath, mapping);
+                var rootDir = new DirectoryInfo(rootPath);
+                var destPath = Path.Combine(PathUtils.TestsAbsolutePackagesPath, entry.RelativeDestPath);
+                var destDir = new DirectoryInfo(destPath);
+                _logger.Log("Copying from " + rootDir.FullName + " to " + destDir.FullName);
+                FileUtils.CopyFilesRecursively(rootDir, destDir);
+                entry.FullMappings.Tests = Path.Combine(PathUtils.TestRelativePackagesPath, entry.RelativeDestPath);
+            }
+        }
 
+        private void CommitDefaultMapping(InstallPlanEntry entry)
+        {
+            var mapping = entry.ConfigData.Mappings.Default;
+            if (!string.IsNullOrEmpty(mapping))
+            {
+                _logger.Log("Using default mapping: " + mapping);
+                var rootPath = entry.TmpDir.GetDirectories().First().FullName;
+                rootPath = Path.Combine(rootPath, mapping);
+                var rootDir = new DirectoryInfo(rootPath);
+                var destPath = Path.Combine(PathUtils.DefaultAbsolutePackagesPath, entry.RelativeDestPath);
+                var destDir = new DirectoryInfo(destPath);
+                _logger.Log("Copying from " + rootDir.FullName + " to " + destDir.FullName);
+                FileUtils.CopyFilesRecursively(rootDir, destDir);
+                entry.FullMappings.Default = Path.Combine(PathUtils.DefaultRelativePackagesPath, entry.RelativeDestPath);
+            }
         }
 
         private void ExtractPackage(InstallPlanEntry entry)
