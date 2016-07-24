@@ -58,6 +58,12 @@ As a first example, you can install CSharp 6.0 support. In terminal type in `ins
 #### Step 3.
 As an second example, you can install uFrame/MVVM or uFrame/ECS. In terminal type in `install uFrame/MVVM` or `install uFrame/ECS`
 
+#### Further information
+
+By default `install author/repo` installs the latest release. If no releases found, it installs the latest tag. If no tags found, it installs the fisrt branch returned by github api.
+
+To specify exact tag/branch/release, you can spice your command up with that info: `install author/repo@branch_or_tag_name`. Make sure that target branch or tag of the repository contains the mandatory `koinonia.config.json` file in the root.
+
 ## How to make my repository compatible with Koinonia ?
 #### Package Identification
 Use the following JSON template to craft a configuration for your package and place it inside `koinonia.config.json` in your repository root:  
@@ -96,7 +102,12 @@ If not provided, your entire repo will be installed into `Plugins/ManagedPackage
 ##### Dependencies
 [OBJECT, OPTIONAL, PROPERTY SCHEME: "Repo_Owner/Repo_Name" : "Branch_Or_Tag_Name" ]
   
-  
+#### Further information
+
+By default `install author/repo` installs the latest release. If no releases found, it installs the latest tag. If no tags found, it installs the fisrt branch returned by github api.
+
+If you expect your user to install the package using shortcut: `install author/repo`, then make sure to create a release on github, so that koinonia automatically finds it for the user. Otherwise, user will have to specify compatible tag or branch: `install author/repo/master` 
+ 
   
 > Regardless of any mappings, koinonia.config.json and optional installer will be copied inside `Plugins/ManagedPackages/author/repository/`  
 
