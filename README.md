@@ -8,6 +8,7 @@ Unity-Oriented Package Manager
 
 Koinonia is in pre-alpha state. Expect bugs, breaking changes, etc.  
 Don't use in production.
+Currently supports only github-hosted repositories.
 
 Current goals:
 * Introduce IoC and Decouple stuff
