@@ -20,7 +20,7 @@ namespace Koinonia
         }
 
         private IGithubApi _githubApi;
-        private KoinoniaUnityCli _unityCliServer;
+        private UnityTerminalFrontend _unityTerminalFrontendServer;
         private List<Install> _installsRegistry;
         private List<Assembly> _allAssemblies;
 
@@ -79,12 +79,12 @@ namespace Koinonia
 
         public IKoinoniaLogger Logger
         {
-            get { return UnityCliServer; }
+            get { return UnityTerminalFrontendServer; }
         }
 
         public ITerminalFrontend CliFrontend
         {
-            get { return UnityCliServer; }
+            get { return UnityTerminalFrontendServer; }
         }
 
         public void FinalizeInstalls()
@@ -298,10 +298,10 @@ namespace Koinonia
         private static string _accessToken;
         private static KoinoniaApplication _instance;
 
-        public KoinoniaUnityCli UnityCliServer
+        public UnityTerminalFrontend UnityTerminalFrontendServer
         {
-            get { return _unityCliServer ?? (_unityCliServer = new KoinoniaUnityCli()); }
-            set { _unityCliServer = value; }
+            get { return _unityTerminalFrontendServer ?? (_unityTerminalFrontendServer = new UnityTerminalFrontend()); }
+            set { _unityTerminalFrontendServer = value; }
         }
 
         public static void Log(string msg)

@@ -12,7 +12,7 @@ namespace Koinonia
         private RotatingIconWidget _loadingWidget;
         private string _loadingMessage;
         private TerminalWidget _terminalWidget;
-        private KoinoniaUnityCli _koinoniaUnityCli;
+        private UnityTerminalFrontend _unityTerminalFrontend;
         public Rect Bounds { get; set; }
         public RotatingIconWidget LoadingWidget
         {

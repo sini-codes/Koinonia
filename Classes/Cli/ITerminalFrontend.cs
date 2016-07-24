@@ -9,8 +9,9 @@ namespace Koinonia
         string Read();
         event Action LinesUpdated;
         IEnumerable<string> Lines { get; }
-        Thread Post(string msg);
         IEnumerable<TerminalServerCommand> Commands { get; }
+        IEnumerable<KeyValuePair<string, string>> Aliases { get; }
+        Thread Post(string msg);
         bool IsWorking { get;  }
     }
 }
