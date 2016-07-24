@@ -66,7 +66,7 @@ namespace Koinonia
         private void AllocateTmp()
         {
             var userTmpPath = Path.GetTempPath();
-            _installationTempPath = Path.Combine(userTmpPath, "KoinoniaInstallation" + rnd.Next());
+            _installationTempPath = Path.Combine(userTmpPath, "ko" + rnd.Next() % 1000);
             _installationTempDir = new DirectoryInfo(_installationTempPath);
             if(!_installationTempDir.Exists) _installationTempDir.Create();
 
@@ -76,6 +76,8 @@ namespace Koinonia
 
         private void ReleaseTmp()
         {
+
+            if (_installationTempDir == null) return;
             FileUtils.DeleteFolder(_installationTempDir);
             _logger.Log("Temporary Folder Released: " + _installationTempDir.FullName);
 
@@ -105,37 +107,47 @@ namespace Koinonia
         private void Install_Internal(Downloadable downloadable)
         {
 
-            Add(downloadable);
-
-            AllocateTmp();
-            foreach (var entry in PlanInstall.ToArray())
+            try
             {
-                AnalyzePackage(entry);
+                Add(downloadable);
+
+                AllocateTmp();
+                foreach (var entry in PlanInstall.ToArray())
+                {
+                    AnalyzePackage(entry);
+                }
+
+                foreach (var entry in PlanInstall.ToArray())
+                {
+                    ExtractPackage(entry);
+                }
+
+                foreach (var entry in PlanInstall.ToArray())
+                {
+                    Commit(entry);
+                }
+
+                foreach (var entry in PlanInstall.ToArray())
+                {
+                    RegisterInstall(entry);
+                }
+
+                _installsRegistry.Commit();
+
+                foreach (var entry in PlanInstall)
+                {
+                    _logger.Log("Installed " + entry.RepositoryName + " @ " + entry.Name);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                ReleaseTmp();
             }
 
-            foreach (var entry in PlanInstall.ToArray())
-            {
-                ExtractPackage(entry);
-            }
-
-            foreach (var entry in PlanInstall.ToArray())
-            {
-                Commit(entry);
-            }
-
-            foreach (var entry in PlanInstall.ToArray())
-            {
-                RegisterInstall(entry);
-            }
-
-            _installsRegistry.Commit();
-
-            foreach (var entry in PlanInstall)
-            {
-                _logger.Log("Installed " + entry.RepositoryName + " @ " + entry.Name);
-            }
-
-            ReleaseTmp();
         }
 
         private void RegisterInstall(InstallPlanEntry _)
@@ -170,7 +182,6 @@ namespace Koinonia
                     var depEntry =
                         PlanInstall.FirstOrDefault(_ => depData.Owner == _.AuthorName && depData.Name == _.RepositoryName);
 
-
                     if (depEntry != null) continue; //Already been processed
 
                     // See if we got this package registered
@@ -185,6 +196,12 @@ namespace Koinonia
                             AuthorName = depData.Owner,
                             RepositoryName = depData.Name,
                         };
+                    }
+
+                    if (_installsRegistry.Installs.Where(i => i.IsInstallOf(host)).Any())
+                    {
+                        _logger.Log(dependency.Key+" is already installed.");
+                        continue;
                     }
 
                     host.FetchDownloadables();
@@ -226,6 +243,8 @@ namespace Koinonia
 
                 CommitDefaultMapping(entry);
                 CommitRootMapping(entry);
+                CommitDocs(entry);
+                CommitTests(entry);
 
             }
             else //Default case, where no mappings are needed

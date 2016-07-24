@@ -53,7 +53,7 @@ namespace Koinonia
 
         public static string DocsAbsolutePackagesPath
         {
-            get { return _docsAbsolutePackagesPath ?? (_docsAbsolutePackagesPath = Path.Combine(RootPath, DefaultRelativePackagesPath)); }
+            get { return _docsAbsolutePackagesPath ?? (_docsAbsolutePackagesPath = Path.Combine(RootPath, DocsRelativePackagesPath)); }
             private set { _docsAbsolutePackagesPath = value; }
         }
 
