@@ -22,7 +22,7 @@ Following the [original meaning](https://en.wikipedia.org/wiki/Koinonia), Koinon
 ## Features
 
 * CLI
-* Install package along with it's dependencies
+* Install package along with it's dependencies by commit, tag or release
 * Post Installer Scripts
 * Path mapping to map your repository paths to unity special folders (i.e. Plugins, Project Root, etc)
 
