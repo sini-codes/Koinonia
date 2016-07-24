@@ -11,7 +11,6 @@ Don't use in production.
 
 Current goals:
 * Introduce IoC and Decouple stuff
-* "Pluginize" CLI command
 * Implement Update
 * Introduce GUI
 
