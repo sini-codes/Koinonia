@@ -122,5 +122,6 @@ If you expect your user to install the package using shortcut: `install author/r
 * https://github.com/nitreo/UniRx
 * https://github.com/nitreo/csharp60
 * https://github.com/nitreo/unity-rect-extensions
+* https://github.com/nitreo/unity-kernel
 
 
