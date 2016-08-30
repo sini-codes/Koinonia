@@ -345,5 +345,45 @@ namespace Koinonia
                 return this.FetchDownloadableHostsRegistry().DownloadablesHostsRegistry;
             }
         }
+
+        public void Update(Install install)
+        {
+
+            var update = new Updater(this,this,GithubApi,Logger);
+            update.Update(install);
+
+
+            var reimports = Installs.Where(i => i.ConfigData.RequiresFullReimport && !i.InstallFinalized).ToArray();
+
+            if (reimports.Any())
+            {
+
+                var msg = "Following packages require full reimport to function properly:\n";
+                foreach (var reimport in reimports)
+                {
+                    msg += reimport.ToShortString() + "\n";
+                }
+
+                ThreadingUtils.DispatchOnMainThread(() =>
+                {
+                    if (EditorUtility.DisplayDialog("Koinonia", msg, "Ok", "No, I'll do it myself"))
+                    {
+                        EditorApplication.ExecuteMenuItem("Assets/Reimport All");
+                    }
+                    else
+                    {
+                        AssetDatabase.Refresh();
+                    }
+                });
+
+            }
+            else
+            {
+                ThreadingUtils.DispatchOnMainThread(AssetDatabase.Refresh);
+
+            }
+
+
+        }
     }
 }

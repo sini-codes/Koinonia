@@ -25,6 +25,8 @@ namespace Koinonia
         [JsonProperty]
         public DownloadableType Type { get; set; }
         [JsonProperty]
+        public DateTime AssociatedDate { get; set; }
+        [JsonProperty]
         public ConfigData ConfigData { get; set; }
         [JsonProperty]
         public Mappings Mappings { get; set; }

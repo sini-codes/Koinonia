@@ -7,6 +7,88 @@ using Random = System.Random;
 
 namespace Koinonia
 {
+
+    public class Updater
+    {
+        private IDownloadablesHostsRegistryProvider _hostsRegistry;
+        private IInstallRegistryProvider _installsRegistry;
+        private IGithubApi _githubApi;
+        private IKoinoniaLogger _logger;
+
+        public Updater(IDownloadablesHostsRegistryProvider hostsRegistry, IInstallRegistryProvider installRegistry, IGithubApi githubApi, IKoinoniaLogger logger)
+        {
+            _hostsRegistry = hostsRegistry;
+            _installsRegistry = installRegistry;
+            _githubApi = githubApi;
+            _logger = logger;
+        }
+
+
+        public bool Update(Install install)
+        {
+            var host = new DownloadablesHost()
+            {
+               AuthorName = install.AuthorName,
+               RepositoryName = install.RepositoryName
+            };
+
+            host.FetchDownloadables();
+
+            Downloadable update = null;
+
+            switch (install.Type)
+            {
+                case DownloadableType.Branch:
+                    var newsetCommit = host.Downloadables.FirstOrDefault(s => s.Type == DownloadableType.Branch && s.Name == install.Name);
+                    if (newsetCommit == null)
+                    {
+                        _logger.LogProblem("No commits found for branch "+install.Name);
+                        return false;
+                    }
+                    if (newsetCommit.CommitSha != install.CommitSha)
+                    {
+                        update = newsetCommit;
+                    }
+                    else
+                    {
+                        _logger.Log("Nothing to update");
+                    }
+                    break;
+                case DownloadableType.Tag:
+                    _logger.LogProblem("Updating Tags is not supported. Install release instead.");
+                    return false;
+                case DownloadableType.Release:
+                    var release = host.Downloadables.FirstOrDefault(s => s.Type == DownloadableType.Release &&  s.AssociatedDate > install.AssociatedDate);
+                    if (release == null)
+                    {
+                        _logger.Log("Nothing to update");
+                        return false;
+                    }
+                    else
+                    {
+                        update = release;
+                    }
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            if (update == null)
+            {
+                return false;
+            }
+            _logger.Log("Will replace "+install.AssociatedDate+" with "+update.AssociatedDate);
+
+            var uninstall = new Uninstallation(_hostsRegistry,_installsRegistry,_githubApi,_logger);
+            uninstall.Uninstall(install);
+
+            var installation = new Installation(_hostsRegistry, _installsRegistry, _githubApi, _logger);
+            installation.Install(update);
+
+            return true;
+        }
+    }
+
     public class Installation
     {
         public Installation(IDownloadablesHostsRegistryProvider hostsRegistry, IInstallRegistryProvider installRegistry, IGithubApi githubApi, IKoinoniaLogger logger)
@@ -20,6 +102,7 @@ namespace Koinonia
         private IDownloadablesHostsRegistryProvider _hostsRegistry;
 
         private List<InstallPlanEntry> _planInstall;
+
         private List<InstallPlanEntry> PlanInstall
         {
             get { return _planInstall ?? (_planInstall = new List<InstallPlanEntry>()); }
@@ -28,11 +111,11 @@ namespace Koinonia
 
         private InstallPlanEntry Add(Downloadable downloadable)
         {
-            _logger.Log("Adding "+downloadable+" to the queue");
+            _logger.Log("Adding " + downloadable + " to the queue");
 
             if (downloadable.ConfigData == null)
             {
-                _logger.Log("Fetching config file for "+downloadable);
+                _logger.Log("Fetching config file for " + downloadable);
                 downloadable.FetchConfigData();
             }
 
@@ -43,17 +126,11 @@ namespace Koinonia
 
             var installationEntry = new InstallPlanEntry()
             {
-                AuthorName = downloadable.AuthorName,
-                RepositoryName = downloadable.RepositoryName,
-                CommitSha = downloadable.CommitSha,
-                Name = downloadable.Name,
-                Type = downloadable.Type,
-                ConfigData = downloadable.ConfigData
+                AuthorName = downloadable.AuthorName, RepositoryName = downloadable.RepositoryName, CommitSha = downloadable.CommitSha, Name = downloadable.Name, Type = downloadable.Type, ConfigData = downloadable.ConfigData, AssociatedDate = downloadable.AssociatedDate
             };
             PlanInstall.Add(installationEntry);
 
             return installationEntry;
-
         }
 
         private string _installationTempPath;
@@ -66,21 +143,18 @@ namespace Koinonia
         private void AllocateTmp()
         {
             var userTmpPath = Path.GetTempPath();
-            _installationTempPath = Path.Combine(userTmpPath, "ko" + rnd.Next() % 1000);
+            _installationTempPath = Path.Combine(userTmpPath, "ko" + rnd.Next()%1000);
             _installationTempDir = new DirectoryInfo(_installationTempPath);
-            if(!_installationTempDir.Exists) _installationTempDir.Create();
+            if (!_installationTempDir.Exists) _installationTempDir.Create();
 
-            _logger.Log("Allocated temporary folder: "+_installationTempDir.FullName);
-
+            _logger.Log("Allocated temporary folder: " + _installationTempDir.FullName);
         }
 
         private void ReleaseTmp()
         {
-
             if (_installationTempDir == null) return;
             FileUtils.DeleteFolder(_installationTempDir);
             _logger.Log("Temporary Folder Released: " + _installationTempDir.FullName);
-
         }
 
         public InstallationResult Install(Downloadable downloadable)
@@ -106,7 +180,6 @@ namespace Koinonia
 
         private void Install_Internal(Downloadable downloadable)
         {
-
             try
             {
                 Add(downloadable);
@@ -147,60 +220,48 @@ namespace Koinonia
             {
                 ReleaseTmp();
             }
-
         }
 
         private void RegisterInstall(InstallPlanEntry _)
         {
             _installsRegistry.AddInstall(new Install()
             {
-                AuthorName = _.AuthorName,
-                RepositoryName = _.RepositoryName,
-                Name =  _.Name,
-                CommitSha = _.CommitSha,
-                Type = _.Type,
-                ConfigData = _.ConfigData,
-                Mappings = _.FullMappings
+                AuthorName = _.AuthorName, RepositoryName = _.RepositoryName, Name = _.Name, CommitSha = _.CommitSha, Type = _.Type, ConfigData = _.ConfigData, Mappings = _.FullMappings, AssociatedDate = _.AssociatedDate
             });
         }
 
         private void AnalyzePackage(InstallPlanEntry entry)
         {
-
             _logger.Log("Checking dependencies in " + entry);
 
             if (entry.ConfigData.Dependencies.Any())
             {
-
                 foreach (var dependency in entry.ConfigData.Dependencies)
                 {
-                    _logger.Log("   Processing " + dependency.Key+" @ "+dependency.Value);
+                    _logger.Log("   Processing " + dependency.Key + " @ " + dependency.Value);
 
                     var depData = GithubSchemeDecoder.DecodeShort(dependency.Key);
 
                     // See if this package is already planned to be installed
-                    var depEntry =
-                        PlanInstall.FirstOrDefault(_ => depData.Owner == _.AuthorName && depData.Name == _.RepositoryName);
+                    var depEntry = PlanInstall.FirstOrDefault(_ => depData.Owner == _.AuthorName && depData.Name == _.RepositoryName);
 
                     if (depEntry != null) continue; //Already been processed
 
                     // See if we got this package registered
-                    var host =
-                        _hostsRegistry.DownloadablesHosts.FirstOrDefault(_ => depData.Owner == _.AuthorName && depData.Name == _.RepositoryName);
+                    var host = _hostsRegistry.DownloadablesHosts.FirstOrDefault(_ => depData.Owner == _.AuthorName && depData.Name == _.RepositoryName);
 
                     // If not, create it locally
                     if (host == null)
                     {
                         host = new DownloadablesHost()
                         {
-                            AuthorName = depData.Owner,
-                            RepositoryName = depData.Name,
+                            AuthorName = depData.Owner, RepositoryName = depData.Name,
                         };
                     }
 
                     if (_installsRegistry.Installs.Where(i => i.IsInstallOf(host)).Any())
                     {
-                        _logger.Log(dependency.Key+" is already installed.");
+                        _logger.Log(dependency.Key + " is already installed.");
                         continue;
                     }
 
@@ -212,7 +273,7 @@ namespace Koinonia
 
                     if (!string.IsNullOrEmpty(dependency.Value))
                     {
-                        downloadable = host.Downloadables.FirstOrDefault(_ => _.Name == dependency.Value); 
+                        downloadable = host.Downloadables.FirstOrDefault(_ => _.Name == dependency.Value);
                     }
 
                     if (downloadable == null) throw new Exception("No Downloadables found for " + host);
@@ -226,26 +287,21 @@ namespace Koinonia
             {
                 _logger.Log("   Seeing no dependencies for " + entry);
             }
-
-
         }
 
         private void Commit(InstallPlanEntry entry)
         {
-     
             //DANCE, BABY, DANCE!
 
             var mappings = entry.ConfigData.Mappings;
             if (mappings != null)
             {
-
                 _logger.Log("Processing mappings...");
 
                 CommitDefaultMapping(entry);
                 CommitRootMapping(entry);
                 CommitDocs(entry);
                 CommitTests(entry);
-
             }
             else //Default case, where no mappings are needed
             {
@@ -256,13 +312,11 @@ namespace Koinonia
                 _logger.Log("Mappings not found. Using standard paths. ");
                 _logger.Log("Copying from " + rootDir.FullName + " to " + destDir.FullName);
                 FileUtils.CopyFilesRecursively(rootDir, destDir);
-                entry.FullMappings.Default = Path.Combine(PathUtils.DefaultRelativePackagesPath, entry.RelativeDestPath); 
+                entry.FullMappings.Default = Path.Combine(PathUtils.DefaultRelativePackagesPath, entry.RelativeDestPath);
             }
 
-       
+
             CommitMeta(entry);
-
-
         }
 
         private void CommitRootMapping(InstallPlanEntry entry)
@@ -371,20 +425,19 @@ namespace Koinonia
         private void ExtractPackage(InstallPlanEntry entry)
         {
             entry.RelativeInstallationPath = entry.RepositoryName;
-            entry.TmpPath = Path.Combine(_installationTempPath, entry.RelativeInstallationPath); 
-            entry.TmpDir = new DirectoryInfo(entry.TmpPath); 
-           
+            entry.TmpPath = Path.Combine(_installationTempPath, entry.RelativeInstallationPath);
+            entry.TmpDir = new DirectoryInfo(entry.TmpPath);
+
             //Download 
 
-            _logger.Log("Downloading "+entry);
-            _logger.Log("   URL: "+_githubApi.GetZipballUrl(entry.AuthorName, entry.RepositoryName, entry.Name));
-            var bytes = _githubApi.GetZipball(entry.AuthorName,entry.RepositoryName,entry.Name);
+            _logger.Log("Downloading " + entry);
+            _logger.Log("   URL: " + _githubApi.GetZipballUrl(entry.AuthorName, entry.RepositoryName, entry.Name));
+            var bytes = _githubApi.GetZipball(entry.AuthorName, entry.RepositoryName, entry.Name);
 
 
             _logger.Log("Decompressing " + entry);
             //Decompress
             ZipUtils.Decompress(entry.TmpPath, bytes);
-
         }
 
         internal class InstallPlanEntry
@@ -399,6 +452,7 @@ namespace Koinonia
             public string RepositoryName { get; set; }
             public DownloadableType Type { get; set; }
             public ConfigData ConfigData { get; set; }
+            public DateTime AssociatedDate { get; set; }
 
             public Mappings FullMappings
             {
@@ -408,14 +462,14 @@ namespace Koinonia
 
             public override string ToString()
             {
-                return string.Format("{0}/{1}@{2} ({3})",AuthorName,RepositoryName,Name,Type); 
+                return string.Format("{0}/{1}@{2} ({3})", AuthorName, RepositoryName, Name, Type);
             }
 
-            public string RelativeDestPath 
+            public string RelativeDestPath
             {
                 get
                 {
-                    var p = string.Format("{0}/{1}",AuthorName,RepositoryName);
+                    var p = string.Format("{0}/{1}", AuthorName, RepositoryName);
                     return p;
                 }
             }

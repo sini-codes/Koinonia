@@ -1,4 +1,6 @@
-﻿namespace Koinonia
+﻿using System;
+
+namespace Koinonia
 {
     public class Downloadable
     {
@@ -8,6 +10,7 @@
         public string RepositoryName { get; set; }
         public DownloadableType Type { get; set; }
         public ConfigData ConfigData { get; set; }
+        public DateTime AssociatedDate { get; set; }
 
         public override string ToString()
         {

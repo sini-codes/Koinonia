@@ -18,6 +18,19 @@ namespace Koinonia
             Terminal.Log("Github Access Token: " + KoinoniaApplication.AccessToken);
         }
 
+        [CliCommand("update", "Update all packages or a given package")]
+        [CliAlias("up")]
+        public void Update(string[] args)
+        {
+            if (args.Length > 1 && !string.IsNullOrEmpty(args[1]))
+            {
+                var installScheme = GithubSchemeDecoder.DecodeShort(args[1]);
+                var install = KoinoniaApplication.Instance.FetchInstallsRegistry().Installs.FirstOrDefault(_ => _.RepositoryName == installScheme.Name && _.AuthorName == installScheme.Owner);
+
+                KoinoniaApplication.Instance.Update(install);
+            }
+        }
+
         [CliCommand("finalize", "Manually finish all the installs when needed")]
         public void Finalize(string[] args)
         {

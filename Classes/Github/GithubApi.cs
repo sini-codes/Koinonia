@@ -48,11 +48,15 @@ namespace Koinonia
             var jsonString = _githubApiRequestManager.GetText(GetReleasesUrl(authorName, repositoryName));
             var jsonObject = JSON.Parse(jsonString).AsArray;
 
-            return jsonObject.Childs.Select(child => new GithubRelease()
+            return jsonObject.Childs.Select(child =>
             {
-                Name = child["name"].AsString,
-                TagName = child["tag_name"].AsString,
-                Date = DateTime.Parse(child["published_at"].AsString),
+                var dateTime = DateTime.Parse(child["published_at"].AsString);
+                return new GithubRelease()
+                {
+                    Name = child["name"].AsString,
+                    TagName = child["tag_name"].AsString,
+                    Date = dateTime,
+                };
             }).ToList();
         }
 
@@ -116,7 +120,7 @@ namespace Koinonia
 
         public string GetConfigDataUrl(string authorName, string repositoryName, string sha)
         {
-            return string.Format("http://github-raw-cors-proxy.herokuapp.com/{0}/{1}/blob/{2}/koinonia.config.json", authorName, repositoryName, sha);
+            return string.Format("https://raw.githubusercontent.com/{0}/{1}/{2}/koinonia.config.json", authorName, repositoryName, sha);
         }
 
     }
