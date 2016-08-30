@@ -115,10 +115,13 @@ If you expect your user to install the package using shortcut: `install author/r
 
 ## Repos compatible with Koinonia
 
-* https://github.com/nitreo/UniRx
-* https://github.com/nitreo/csharp60
 * https://github.com/uFrame/Core
 * https://github.com/uFrame/MVVM
 * https://github.com/uFrame/ECS
+
+* https://github.com/nitreo/UniRx
+* https://github.com/nitreo/csharp60
+* https://github.com/nitreo/unity-rect-extensions
+* https://github.com/nitreo/unity-kernel
 
 
